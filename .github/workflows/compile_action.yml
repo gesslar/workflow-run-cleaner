@@ -1,43 +1,49 @@
-name: Build and Release Action
+name: Compile and Release Action
 
 on:
-  push:
-    tags:
-      - v*
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Generate New Tag"]
+    types:
+      - completed
 
 jobs:
-  build:
+  compile_and_release:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: '20'
 
-      - name: Install NCC
-        run: npm install -g @vercel/ncc
+      - name: Download New Tag Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: new_tag
+
+      - name: Read Tag from File
+        id: read_tag
+        run: |
+          TAG=$(cat new_tag.txt)
+          echo "NEW_TAG=${TAG}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build
+      - name: Build action using NCC
         run: npm run build
 
-      - name: Check for changes in dist
-        id: changes_check
-        run: |
-          lines_changed=$(git diff --patch --unified=0 dist/index.js | wc --lines)
-          echo "has_changes=$lines_changed" >> $GITHUB_ENV
-
-      - name: Publish GitHub Action
-        if: env.has_changes != '0'
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add dist &&
-          git commit -m "Auto-build GitHub Action" &&
-          git push origin main
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: Release ${{ env.NEW_TAG }}
+          body_path: ./README.md
+          draft: false
+          prerelease: false
