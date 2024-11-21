@@ -77,6 +77,15 @@ jobs:
       - name: Build action using NCC
         run: npm run build
 
+      - name: Delete old dist/index.js
+        run: rm -rf dist/index.js
+
+      - name: Commit dist/index.js
+        run: |
+          git add dist/index.js
+          git commit -m "Update dist/index.js for v${NEW_TAG}"
+          git push
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
