@@ -9,6 +9,8 @@ on:
 jobs:
   tag_version:
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.check_tag.outputs.new_tag }}
 
     steps:
       - name: Checkout code
@@ -43,19 +45,8 @@ jobs:
             git config user.email "github-actions@github.com"
             git tag "v${CURRENT_VERSION}"
             git push origin "v${CURRENT_VERSION}"
-            echo "NEW_TAG=v${CURRENT_VERSION}" >> $GITHUB_ENV
+            echo "::set-output name=new_tag::v${CURRENT_VERSION}"
           else
             echo "Tag already exists for version v${CURRENT_VERSION}. Skipping tag creation."
             exit 0
           fi
-
-      - name: Save Tag as Artifact
-        if: success() && steps.check_tag.outcome == 'success'
-        run: |
-          echo "NEW_TAG=${NEW_TAG}" > new_tag.txt
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: new_tag
-          path: new_tag.txt

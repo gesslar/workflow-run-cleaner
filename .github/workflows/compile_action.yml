@@ -19,22 +19,21 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Download New Tag Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: new_tag
-
-      - name: Read Tag from File
-        id: read_tag
+      - name: Get triggering workflow information
         run: |
-          TAG=$(cat new_tag.txt)
-          echo "NEW_TAG=${TAG}" >> $GITHUB_ENV
+          echo "New Tag: ${{ github.event.workflow_run.outputs.new_tag }}"
+          echo "NEW_TAG=${{ github.event.workflow_run.outputs.new_tag }}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: npm install
 
       - name: Build action using NCC
         run: npm run build
+
+      - name: Archive dist folder
+        run: |
+          mkdir -p artifacts
+          zip -r artifacts/action.zip dist
 
       - name: Create Release
         id: create_release
