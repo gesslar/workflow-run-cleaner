@@ -49,3 +49,4 @@ jobs:
           else
             echo "Tag already exists for version v${CURRENT_VERSION}. Skipping tag creation."
             exit 0
+          fi
