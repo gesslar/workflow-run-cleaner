@@ -1,6 +1,6 @@
 {
   "name": "workflow-run-cleaner",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Clean up old workflow runs",
   "main": "cleanup.js",
   "scripts": {
