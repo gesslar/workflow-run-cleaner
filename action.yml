@@ -2,7 +2,7 @@ name: 'Workflow Cleanup Action'
 description: 'An action to clean up old workflow runs across repositories.'
 author: 'gesslar <karahd@gmail.com>'
 inputs:
-  pat:
+  token:
     description: 'Personal Access Token with repo and workflow scopes'
     required: true
   repo_owner:

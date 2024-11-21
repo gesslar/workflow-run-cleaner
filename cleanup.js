@@ -8,7 +8,7 @@ const axios = require('axios');
 (async () => {
   try {
     // Extracting inputs using core
-    const PAT = core.getInput('pat', { required: true });
+    const TOKEN = core.getInput('token', { required: true });
     const REPO_OWNER = core.getInput('repo_owner', { required: true });
     const TARGET_CLEANUP_REPOS = core.getInput('target_cleanup_repos');
     const TARGET_IGNORE_REPOS = core.getInput('target_ignore_repos');
@@ -20,7 +20,7 @@ const axios = require('axios');
     const errorOccurred = false;
 
     // GitHub API client setup
-    const octokit = github.getOctokit(PAT);
+    const octokit = github.getOctokit(TOKEN);
 
     let reposArray = [];
     let ignoreReposArray = [];
