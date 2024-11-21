@@ -33,6 +33,7 @@ jobs:
         run: |
           TAG_EXISTS=$(git tag -l "v${{ env.CURRENT_VERSION }}")
           echo "TAG_EXISTS=${TAG_EXISTS}" >> $GITHUB_ENV
+          echo "Value of TAG_EXISTS: $TAG_EXISTS"
           if [ -z "$TAG_EXISTS" ]; then
             echo "Tag does not exist for version ${{ env.CURRENT_VERSION }}. Creating tag."
             git config user.name "github-actions"
