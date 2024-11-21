@@ -84,7 +84,7 @@ jobs:
         run: |
           git add dist/index.js
           git commit -m "Update dist/index.js for v${NEW_TAG}"
-          git push
+          git push origin main
 
       - name: Create Release
         id: create_release
