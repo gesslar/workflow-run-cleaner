@@ -54,7 +54,7 @@ jobs:
 
   compile_and_release:
     needs: tag_version
-    if: needs.tag_version.outputs.new_tag != 'no'
+    if: ${{ needs.tag_version.outputs.new_tag != 'no' }}
     runs-on: ubuntu-latest
     steps:
       - name: Get new tag
