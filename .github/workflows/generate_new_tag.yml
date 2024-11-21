@@ -35,12 +35,9 @@ jobs:
           if [ -n "$TAG_EXISTS" ]; then
             echo "Tag already exists for version ${{ env.CURRENT_VERSION }}. Skipping tag creation."
             exit 0
+          else
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git tag "v${CURRENT_VERSION}"
+            git push origin "v${CURRENT_VERSION}"
           fi
-
-      - name: Create and Push Tag
-        if: steps.check_tag.outcome == 'success'
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag "v${CURRENT_VERSION}"
-          git push origin "v${CURRENT_VERSION}"
