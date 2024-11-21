@@ -1,66 +1,61 @@
 #!/usr/bin/env node
 
+const core = require('@actions/core');
+const github = require('@actions/github');
 const axios = require('axios');
-const process = require('process');
 
-// Get environment variables
-const PAT = process.env.PAT;
-const REPO_OWNER = process.env.REPO_OWNER;
-const TARGET_CLEANUP_REPOS = process.env.TARGET_CLEANUP_REPOS || '';
-const TARGET_IGNORE_REPOS = process.env.TARGET_IGNORE_REPOS || '';
-const DAYS_THRESHOLD = process.env.DAYS_THRESHOLD || '7';
-const NOTIFICATION_WEBHOOK_URL = process.env.NOTIFICATION_WEBHOOK_URL || '';
-
-const sevenDaysAgo = new Date();
-sevenDaysAgo.setDate(sevenDaysAgo.getDate() - parseInt(DAYS_THRESHOLD));
-const sevenDaysAgoISO = sevenDaysAgo.toISOString();
-
-let errorOccurred = false;
-
+// Main function
 (async () => {
   try {
-    console.log('Starting cleanup of old workflow runs...');
+    // Extracting inputs using core
+    const PAT = core.getInput('pat', { required: true });
+    const REPO_OWNER = core.getInput('repo_owner', { required: true });
+    const TARGET_CLEANUP_REPOS = core.getInput('target_cleanup_repos');
+    const TARGET_IGNORE_REPOS = core.getInput('target_ignore_repos');
+    const DAYS_THRESHOLD = core.getInput('days_threshold') || '7';
+    const NOTIFICATION_WEBHOOK_URL = core.getInput('notification_webhook_url');
 
-    const perPage = 100;
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - parseInt(DAYS_THRESHOLD));
+    const errorOccurred = false;
+
+    // GitHub API client setup
+    const octokit = github.getOctokit(PAT);
+
     let reposArray = [];
     let ignoreReposArray = [];
 
     // Parse ignore repos
     if (TARGET_IGNORE_REPOS) {
-      console.log('Using repositories to ignore from TARGET_IGNORE_REPOS variable.');
+      core.info('Using repositories to ignore from TARGET_IGNORE_REPOS input.');
       ignoreReposArray = TARGET_IGNORE_REPOS.split(',').map(repo => repo.trim());
     }
 
     // Parse target cleanup repos
     if (TARGET_CLEANUP_REPOS) {
-      console.log('Using specified repositories from TARGET_CLEANUP_REPOS variable.');
+      core.info('Using specified repositories from TARGET_CLEANUP_REPOS input.');
       reposArray = TARGET_CLEANUP_REPOS.split(',').map(repo => repo.trim());
     } else {
-      console.log('No TARGET_CLEANUP_REPOS specified. Processing all repositories except those in TARGET_IGNORE_REPOS.');
+      core.info('No TARGET_CLEANUP_REPOS specified. Fetching all repositories except those in TARGET_IGNORE_REPOS.');
 
       // Fetch all repositories owned by REPO_OWNER
       let page = 1;
       while (true) {
-        const response = await axios.get(`https://api.github.com/users/${REPO_OWNER}/repos`, {
-          params: {
-            per_page: perPage,
-            page: page,
-          },
-          headers: {
-            Authorization: `token ${PAT}`,
-          },
+        const response = await octokit.rest.repos.listForUser({
+          username: REPO_OWNER,
+          per_page: 100,
+          page: page
         });
 
         const repos = response.data.map(repo => repo.full_name);
-
         if (repos.length === 0) {
-          console.log('No more repositories found.');
+          core.info('No more repositories found.');
           break;
         }
 
         for (const repo of repos) {
           if (ignoreReposArray.includes(repo)) {
-            console.log(`Skipping repository (ignored): ${repo}`);
+            core.info(`Skipping repository (ignored): ${repo}`);
           } else {
             reposArray.push(repo);
           }
@@ -73,31 +68,28 @@ let errorOccurred = false;
     // Validate repository names
     for (const repo of reposArray) {
       if (!/^[^/]+\/[^/]+$/.test(repo)) {
-        console.error(`Invalid repository format: ${repo}. Expected format 'owner/repo'.`);
-        process.exit(1);
+        core.setFailed(`Invalid repository format: ${repo}. Expected format 'owner/repo'.`);
+        return;
       }
     }
 
     if (reposArray.length === 0) {
-      console.log('No repositories to process after applying filters.');
-      process.exit(0);
+      core.info('No repositories to process after applying filters.');
+      return;
     }
 
     // Loop through repositories
     for (const repo of reposArray) {
-      console.log(`Processing repository: ${repo}`);
+      core.info(`Processing repository: ${repo}`);
 
       let runPage = 1;
       while (true) {
         try {
-          const runsResponse = await axios.get(`https://api.github.com/repos/${repo}/actions/runs`, {
-            params: {
-              per_page: perPage,
-              page: runPage,
-            },
-            headers: {
-              Authorization: `token ${PAT}`,
-            },
+          const runsResponse = await octokit.rest.actions.listWorkflowRunsForRepo({
+            owner: repo.split('/')[0],
+            repo: repo.split('/')[1],
+            per_page: 100,
+            page: runPage
           });
 
           const runs = runsResponse.data.workflow_runs.filter(run => {
@@ -105,57 +97,57 @@ let errorOccurred = false;
           });
 
           if (runs.length === 0) {
-            console.log(`No more runs to process in repository: ${repo}.`);
+            core.info(`No more runs to process in repository: ${repo}.`);
             break;
           }
 
           for (const run of runs) {
             const runId = run.id;
-            console.log(`Deleting workflow run ${runId} in repository ${repo}`);
+            core.info(`Deleting workflow run ${runId} in repository ${repo}`);
 
             try {
-              await axios.delete(`https://api.github.com/repos/${repo}/actions/runs/${runId}`, {
-                headers: {
-                  Authorization: `token ${PAT}`,
-                },
+              await octokit.rest.actions.deleteWorkflowRun({
+                owner: repo.split('/')[0],
+                repo: repo.split('/')[1],
+                run_id: runId
               });
-              console.log(`Successfully deleted run ${runId}.`);
+              core.info(`Successfully deleted run ${runId}.`);
             } catch (deleteError) {
+              core.error(`Failed to delete run ${runId}. Response: ${deleteError.message}`);
               errorOccurred = true;
-              console.error(`Failed to delete run ${runId}. Response: ${deleteError.response.data.message}`);
             }
           }
 
           runPage += 1;
         } catch (runsError) {
+          core.error(`Failed to fetch runs for repository ${repo}. Response: ${runsError.message}`);
           errorOccurred = true;
-          console.error(`Failed to fetch runs for repository ${repo}. Response: ${runsError.response.data.message}`);
           break;
         }
       }
     }
 
-    console.log('Cleanup completed.');
-  } catch (err) {
-    errorOccurred = true;
-    console.error(`An error occurred: ${err.message}`);
-  } finally {
-    // Send notification if webhook URL is provided
-    const message = errorOccurred
-      ? 'Workflow cleanup encountered errors.'
-      : 'Workflow cleanup completed successfully.';
+    core.info('Cleanup completed.');
 
+    // Send notification if webhook URL is provided
     if (NOTIFICATION_WEBHOOK_URL) {
+      const message = errorOccurred
+        ? 'Workflow cleanup encountered errors.'
+        : 'Workflow cleanup completed successfully.';
+
       try {
         await axios.post(NOTIFICATION_WEBHOOK_URL, { text: message });
-        console.log('Notification sent.');
+        core.info('Notification sent.');
       } catch (notifyError) {
-        console.error(`Failed to send notification: ${notifyError.message}`);
+        core.error(`Failed to send notification: ${notifyError.message}`);
       }
     }
 
     if (errorOccurred) {
-      process.exit(1);
+      core.setFailed('Some errors occurred during the workflow cleanup.');
     }
+
+  } catch (err) {
+    core.setFailed(`Action failed with error: ${err.message}`);
   }
 })();
