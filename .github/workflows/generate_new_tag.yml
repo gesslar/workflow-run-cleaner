@@ -32,13 +32,14 @@ jobs:
         id: check_tag
         run: |
           TAG_EXISTS=$(git tag -l "v${{ env.CURRENT_VERSION }}")
-          if [ -n "$TAG_EXISTS" ]; then
-            echo "Tag already exists for version ${{ env.CURRENT_VERSION }}. Skipping tag creation."
-            exit 0
-          else
+          echo "TAG_EXISTS=${TAG_EXISTS}" >> $GITHUB_ENV
+          if [ -z "$TAG_EXISTS" ]; then
             echo "Tag does not exist for version ${{ env.CURRENT_VERSION }}. Creating tag."
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
             git tag "v${CURRENT_VERSION}"
             git push origin "v${CURRENT_VERSION}"
+          else
+            echo "Tag already exists for version ${{ env.CURRENT_VERSION }}. Skipping tag creation."
+            exit 0
           fi
