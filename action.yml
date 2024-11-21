@@ -3,7 +3,7 @@ description: 'An action to clean up old workflow runs across repositories.'
 author: 'gesslar <karahd@gmail.com>'
 inputs:
   pat:
-    description: 'Personal Access Token (classic) with repo and workflow scopes'
+    description: 'Personal Access Token with repo and workflow scopes'
     required: true
   repo_owner:
     description: 'Owner of the repositories'
@@ -23,15 +23,5 @@ inputs:
     description: 'Webhook URL for sending notifications'
     required: false
 runs:
-  using: 'composite'
-  steps:
-    - name: Execute Cleanup Script
-      shell: bash
-      run: ./cleanup.sh
-      env:
-        PAT: ${{ inputs.pat }}
-        REPO_OWNER: ${{ inputs.repo_owner }}
-        TARGET_CLEANUP_REPOS: ${{ inputs.target_cleanup_repos }}
-        TARGET_IGNORE_REPOS: ${{ inputs.target_ignore_repos }}
-        DAYS_THRESHOLD: ${{ inputs.days_threshold }}
-        NOTIFICATION_WEBHOOK_URL: ${{ inputs.notification_webhook_url }}
+  using: 'node20'
+  main: 'cleanup.js'
