@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
@@ -45,7 +45,7 @@ jobs:
             git config user.email "github-actions@github.com"
             git tag "v${CURRENT_VERSION}"
             git push origin "v${CURRENT_VERSION}"
-            echo "::set-output name=new_tag::v${CURRENT_VERSION}"
+            echo "new_tag=v${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           else
             echo "Tag already exists for version v${CURRENT_VERSION}. Skipping tag creation."
             exit 0
