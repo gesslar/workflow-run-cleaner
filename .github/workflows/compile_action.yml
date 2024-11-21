@@ -19,17 +19,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Download New Tag Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: new_tag
-
-      - name: Read Tag from File
-        id: read_tag
-        run: |
-          TAG=$(cat new_tag.txt)
-          echo "NEW_TAG=${TAG}" >> $GITHUB_ENV
-
       - name: Install dependencies
         run: npm install
 
@@ -47,8 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.NEW_TAG }}
-          release_name: Release ${{ env.NEW_TAG }}
+          tag_name: ${{ github.event.workflow_run.outputs.new_tag }}
+          release_name: Release ${{ github.event.workflow_run.outputs.new_tag }}
           body_path: ./README.md
           draft: false
           prerelease: false
