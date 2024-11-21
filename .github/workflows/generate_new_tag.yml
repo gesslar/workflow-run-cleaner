@@ -57,7 +57,10 @@ jobs:
     steps:
       - env:
           NEW_TAG: ${{ needs.tag_version.outputs.new_tag }}
-        name: Checkout code
+        run: |
+          echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
+
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -77,8 +80,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.event.workflow_run.outputs.new_tag }}
-          release_name: Release ${{ github.event.workflow_run.outputs.new_tag }}
+          tag_name: ${{ env.NEW_TAG }}
+          release_name: Release ${{ env.NEW_TAG }}
           body_path: ./README.md
           draft: false
           prerelease: false
