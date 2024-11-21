@@ -36,6 +36,7 @@ jobs:
             echo "Tag already exists for version ${{ env.CURRENT_VERSION }}. Skipping tag creation."
             exit 0
           else
+            echo "Tag does not exist for version ${{ env.CURRENT_VERSION }}. Creating tag."
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
             git tag "v${CURRENT_VERSION}"
