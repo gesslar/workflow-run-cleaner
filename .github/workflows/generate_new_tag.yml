@@ -48,13 +48,13 @@ jobs:
             echo "new_tag=v${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           else
             echo "Tag already exists for version v${CURRENT_VERSION}. Skipping tag creation."
-            echo "new_tag=no" >> $GITHUB_OUTPUT
+            echo "new_tag=🙅🏻‍♂️" >> $GITHUB_OUTPUT
             exit 0
           fi
 
   compile_and_release:
     needs: tag_version
-    if: ${{ needs.tag_version.outputs.new_tag != 'no' }}
+    if: ${{ needs.tag_version.outputs.new_tag != '🙅🏻‍♂️' }}
     runs-on: ubuntu-latest
     steps:
       - name: Get new tag
