@@ -48,7 +48,7 @@ jobs:
             echo "new_tag=v${CURRENT_VERSION}" >> $GITHUB_OUTPUT
           else
             echo "Tag already exists for version v${CURRENT_VERSION}. Skipping tag creation."
-            # echo "new_tag=''" >> $GITHUB_OUTPUT
+            echo "new_tag='no'" >> $GITHUB_OUTPUT
             exit 0
           fi
 
@@ -57,7 +57,7 @@ jobs:
     needs: tag_version
     steps:
       - name: Check if new tag exists
-        if: ${{ needs.tag_version.outputs.new_tag }}
+        if: ${{ needs.tag_version.outputs.new_tag != 'no' }}
         env:
           NEW_TAG: ${{ needs.tag_version.outputs.new_tag }}
         run: |
