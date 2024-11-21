@@ -74,11 +74,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build action using NCC
-        run: npm run build
-
       - name: Delete old dist/index.js
         run: rm -rf dist/index.js
+
+      - name: Build action using NCC
+        run: npm run build
 
       - name: Commit dist/index.js
         run: |
