@@ -82,6 +82,8 @@ jobs:
 
       - name: Commit dist/index.js
         run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add dist/index.js
           git commit -m "Update dist/index.js for v${NEW_TAG}"
           git push origin main
