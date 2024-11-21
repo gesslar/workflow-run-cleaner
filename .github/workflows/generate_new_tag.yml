@@ -53,9 +53,9 @@ jobs:
           fi
 
   compile_and_release:
-    if: ${{ needs.tag_version.outputs.new_tag != 'no' }}
-    runs-on: ubuntu-latest
     needs: tag_version
+    if: needs.tag_version.outputs.new_tag != 'no'
+    runs-on: ubuntu-latest
     steps:
       - name: Get new tag
         env:
