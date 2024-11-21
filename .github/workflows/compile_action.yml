@@ -1,0 +1,43 @@
+name: Build and Release Action
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@master
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - name: Install NCC
+        run: npm install -g @vercel/ncc
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Check for changes in dist
+        id: changes_check
+        run: |
+          lines_changed=$(git diff --patch --unified=0 dist/index.js | wc --lines)
+          echo "has_changes=$lines_changed" >> $GITHUB_ENV
+
+      - name: Publish GitHub Action
+        if: env.has_changes != '0'
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add dist &&
+          git commit -m "Auto-build GitHub Action" &&
+          git push origin main
