@@ -38983,6 +38983,7 @@ const axios = __nccwpck_require__(8757);
     const TARGET_CLEANUP_REPOS = core.getInput('target_cleanup_repos');
     const TARGET_IGNORE_REPOS = core.getInput('target_ignore_repos');
     const DAYS_THRESHOLD = core.getInput('days_threshold') || '7';
+    const NOTIFICATION_WEBHOOK_TYPE = core.getInput('notification_webhook_type') || 'discord';
     const NOTIFICATION_WEBHOOK_URL = core.getInput('notification_webhook_url');
 
     // core.info(`TOKEN: ${TOKEN}`);
@@ -39112,13 +39113,20 @@ const axios = __nccwpck_require__(8757);
     core.info(`Cleanup completed. Processed ${result.repos} repositories, ${result.ignoredRepos} ignored repositories, ${result.wfRuns} deleted workflow runs, and ${result.errors} errors occurred.`);
 
     // Send notification if webhook URL is provided
-    if (NOTIFICATION_WEBHOOK_URL) {
-      DEBUG && core.debug(`Sending notification to ${NOTIFICATION_WEBHOOK_URL}`);
+    if (NOTIFICATION_WEBHOOK_TYPE && NOTIFICATION_WEBHOOK_URL) {
+      DEBUG && core.debug(`Sending notification to ${NOTIFICATION_WEBHOOK_URL} via ${NOTIFICATION_WEBHOOK_TYPE}`);
       const message = errorOccurred
         ? 'Workflow cleanup encountered errors.'
         : 'Workflow cleanup completed successfully.';
 
-      result.text = message;
+      switch (NOTIFICATION_WEBHOOK_TYPE) {
+        case 'discord':
+          result.content = message;
+          break;
+        default:
+          core.error(`Unsupported notification webhook type: ${NOTIFICATION_WEBHOOK_TYPE}`);
+          break;
+      }
 
       try {
         await axios.post(NOTIFICATION_WEBHOOK_URL, result) ;
