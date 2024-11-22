@@ -15,7 +15,7 @@ const axios = require('axios');
 
   try {
     // Extracting inputs using core
-    const DEBUG = core.getInput('debug') || false;
+    const DEBUG = core.getInput('debug') === 'true';
     const TOKEN = core.getInput('token', { required: true });
     const REPO_OWNER = core.getInput('repo_owner', { required: true });
     const TARGET_CLEANUP_REPOS = core.getInput('target_cleanup_repos');
