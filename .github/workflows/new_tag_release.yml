@@ -9,10 +9,18 @@ on:
 jobs:
   tag_version:
     runs-on: ubuntu-latest
+    env:
+      GIT_USER_NAME: "github-actions"
+      GIT_USER_EMAIL: "github-actions@github.com"
     outputs:
       new_tag: ${{ steps.check_tag.outputs.new_tag }}
 
     steps:
+      - name: Setup Git
+        run: |
+          git config user.name "${GIT_USER_NAME}"
+          git config user.email "${GIT_USER_EMAIL}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -41,8 +49,6 @@ jobs:
 
           if [ -z "$TAG_EXISTS" ]; then
             echo "Tag does not exist for version v${CURRENT_VERSION}. Creating tag."
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
             git tag "v${CURRENT_VERSION}"
             git push origin "v${CURRENT_VERSION}"
             echo "new_tag=v${CURRENT_VERSION}" >> $GITHUB_OUTPUT
@@ -55,13 +61,13 @@ jobs:
   compile_and_release:
     needs: tag_version
     if: ${{ needs.tag_version.outputs.new_tag != '🙅🏻‍♂️' }}
+    env:
+      NEW_TAG: ${{ needs.tag_version.outputs.new_tag }}
+      GIT_USER_NAME: "github-actions"
+      GIT_USER_EMAIL: "github-actions@github.com"
     runs-on: ubuntu-latest
     steps:
       - name: Get new tag
-        env:
-          NEW_TAG: ${{ needs.tag_version.outputs.new_tag }}
-          GIT_USER_NAME: "github-actions"
-          GIT_USER_EMAIL: "github-actions@github.com"
         run: |
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
 
@@ -78,8 +84,7 @@ jobs:
 
       - name: Delete old dist/index.js
         run: |
-          git config user.name "${GIT_USER_NAME}"
-          git config user.email "${GIT_USER_EMAIL}"
+
           git rm -f dist/index.js
           git commit -m "Remove old dist/index.js"
           git push origin main
