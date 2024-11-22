@@ -39110,7 +39110,8 @@ const axios = __nccwpck_require__(8757);
     }
 
     // ugh
-    core.info(`Cleanup completed. Processed ${result.repos} repositories, ${result.ignoredRepos} ignored repositories, ${result.wfRuns} deleted workflow runs, and ${result.errors} errors occurred.`);
+    const result_message = `Cleanup completed. Processed ${result.repos} repositories, ${result.ignoredRepos} ignored repositories, ${result.wfRuns} deleted workflow runs, and ${result.errors} errors occurred.`;
+    core.info(result_message);
 
     // Send notification if webhook URL is provided
     if (NOTIFICATION_WEBHOOK_TYPE && NOTIFICATION_WEBHOOK_URL) {
@@ -39121,7 +39122,7 @@ const axios = __nccwpck_require__(8757);
 
       switch (NOTIFICATION_WEBHOOK_TYPE) {
         case 'discord':
-          result.content = message;
+          result.content = `**${message}**\n> ${result_message}`;
           break;
         default:
           core.error(`Unsupported notification webhook type: ${NOTIFICATION_WEBHOOK_TYPE}`);
