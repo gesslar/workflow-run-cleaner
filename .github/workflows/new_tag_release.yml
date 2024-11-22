@@ -16,15 +16,15 @@ jobs:
       new_tag: ${{ steps.check_tag.outputs.new_tag }}
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Setup Git Variables
         run: |
           echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
           echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
-
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -65,17 +65,17 @@ jobs:
     if: ${{ needs.tag_version.outputs.new_tag != '🙅🏻‍♂️' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Git Variables
-        run: |
-          echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
-          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
-
       - name: Setup New Tag
         run: |
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
 
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Git Variables
+        run: |
+          echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
+          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
