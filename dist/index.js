@@ -38977,12 +38977,20 @@ const axios = __nccwpck_require__(8757);
 
   try {
     // Extracting inputs using core
+    const DEBUG = core.getInput('debug') === 'true';
     const TOKEN = core.getInput('token', { required: true });
     const REPO_OWNER = core.getInput('repo_owner', { required: true });
     const TARGET_CLEANUP_REPOS = core.getInput('target_cleanup_repos');
     const TARGET_IGNORE_REPOS = core.getInput('target_ignore_repos');
     const DAYS_THRESHOLD = core.getInput('days_threshold') || '7';
     const NOTIFICATION_WEBHOOK_URL = core.getInput('notification_webhook_url');
+
+    // core.info(`TOKEN: ${TOKEN}`);
+    DEBUG && core.debug(`REPO_OWNER: ${REPO_OWNER}`);
+    DEBUG && core.debug(`TARGET_CLEANUP_REPOS: ${TARGET_CLEANUP_REPOS}`);
+    DEBUG && core.debug(`TARGET_IGNORE_REPOS: ${TARGET_IGNORE_REPOS}`);
+    DEBUG && core.debug(`DAYS_THRESHOLD: ${DAYS_THRESHOLD}`);
+    DEBUG && core.debug(`NOTIFICATION_WEBHOOK_URL: ${NOTIFICATION_WEBHOOK_URL}`);
 
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - parseInt(DAYS_THRESHOLD));
@@ -39105,7 +39113,7 @@ const axios = __nccwpck_require__(8757);
 
     // Send notification if webhook URL is provided
     if (NOTIFICATION_WEBHOOK_URL) {
-      core.info(`Sending notification to ${NOTIFICATION_WEBHOOK_URL}`);
+      DEBUG && core.debug(`Sending notification to ${NOTIFICATION_WEBHOOK_URL}`);
       const message = errorOccurred
         ? 'Workflow cleanup encountered errors.'
         : 'Workflow cleanup completed successfully.';
@@ -39114,12 +39122,12 @@ const axios = __nccwpck_require__(8757);
 
       try {
         await axios.post(NOTIFICATION_WEBHOOK_URL, result) ;
-        core.info('Notification sent.');
+        DEBUG && core.debug('Notification sent.');
       } catch (notifyError) {
         core.error(`Failed to send notification: ${notifyError.message}`);
       }
     } else {
-      core.info('No notification webhook URL provided. Skipping notification.');
+      DEBUG && core.debug('No notification webhook URL provided. Skipping notification.');
     }
 
     if (errorOccurred) {
