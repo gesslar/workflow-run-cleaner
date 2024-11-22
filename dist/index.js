@@ -39115,11 +39115,7 @@ const axios = __nccwpck_require__(8757);
       result.text = message;
 
       try {
-        await axios.post(NOTIFICATION_WEBHOOK_URL, result, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+        await axios.post(NOTIFICATION_WEBHOOK_URL, result) ;
         core.info('Notification sent.');
       } catch (notifyError) {
         core.error(`Failed to send notification: ${notifyError.message}`);
