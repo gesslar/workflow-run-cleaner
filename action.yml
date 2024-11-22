@@ -19,6 +19,10 @@ inputs:
     description: 'Number of days to keep workflow runs'
     required: false
     default: '7'
+  notification_webhook_type:
+    description: 'Type of notification webhook'
+    required: false
+    default: 'discord'
   notification_webhook_url:
     description: 'Webhook URL for sending notifications'
     required: false
