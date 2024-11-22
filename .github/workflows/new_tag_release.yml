@@ -78,9 +78,9 @@ jobs:
 
       - name: Delete old dist/index.js
         run: |
-          git rm -f dist/index.js
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
+          git rm -f dist/index.js
           git commit -m "Remove old dist/index.js"
           git push origin main
 
