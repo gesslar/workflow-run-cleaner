@@ -26,6 +26,11 @@ jobs:
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
 
+      - name: Print Git Variables
+        run: |
+          echo "GIT_USER_NAME=${GIT_USER_NAME}"
+          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -77,6 +82,11 @@ jobs:
           echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
           echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
 
+      - name: Print Git Variables
+        run: |
+          echo "GIT_USER_NAME=${GIT_USER_NAME}"
+          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}"
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -97,8 +107,6 @@ jobs:
 
       - name: Commit dist/index.js
         run: |
-          git config user.name "${GIT_USER_NAME}"
-          git config user.email "${GIT_USER_EMAIL}"
           git add dist/index.js
           git commit -m "Update dist/index.js for ${NEW_TAG}"
           git push origin main
