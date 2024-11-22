@@ -16,8 +16,10 @@ jobs:
       new_tag: ${{ steps.check_tag.outputs.new_tag }}
 
     steps:
-      - name: Setup Git
+      - name: Setup Git Variables
         run: |
+          echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
+          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
 
@@ -61,13 +63,14 @@ jobs:
   compile_and_release:
     needs: tag_version
     if: ${{ needs.tag_version.outputs.new_tag != '🙅🏻‍♂️' }}
-    env:
-      NEW_TAG: ${{ needs.tag_version.outputs.new_tag }}
-      GIT_USER_NAME: "github-actions"
-      GIT_USER_EMAIL: "github-actions@github.com"
     runs-on: ubuntu-latest
     steps:
-      - name: Get new tag
+      - name: Setup Git Variables
+        run: |
+          echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
+          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
+
+      - name: Setup New Tag
         run: |
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
 
