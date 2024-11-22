@@ -153,11 +153,7 @@ const axios = require('axios');
       result.text = message;
 
       try {
-        await axios.post(NOTIFICATION_WEBHOOK_URL, result, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+        await axios.post(NOTIFICATION_WEBHOOK_URL, result) ;
         core.info('Notification sent.');
       } catch (notifyError) {
         core.error(`Failed to send notification: ${notifyError.message}`);
