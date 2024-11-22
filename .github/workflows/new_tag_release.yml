@@ -26,11 +26,6 @@ jobs:
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
 
-      - name: Print Git Variables
-        run: |
-          echo "GIT_USER_NAME=${GIT_USER_NAME}"
-          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}"
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -87,11 +82,6 @@ jobs:
           echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
           git config user.name "${GIT_USER_NAME}"
           git config user.email "${GIT_USER_EMAIL}"
-
-      - name: Print Git Variables
-        run: |
-          echo "GIT_USER_NAME=${GIT_USER_NAME}"
-          echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
