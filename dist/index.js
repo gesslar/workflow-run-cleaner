@@ -39100,7 +39100,7 @@ const axios = __nccwpck_require__(8757);
       }
     }
 
-    core.info(`Cleanup completed. `
+    core.info("Cleanup completed. " +
       `Processed ${result.repos} repositories, `
       `${result.ignoredRepos} ignored repositories, `
       `${result.wfRuns} deleted workflow runs, and `
