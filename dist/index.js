@@ -39105,6 +39105,7 @@ const axios = __nccwpck_require__(8757);
 
     // Send notification if webhook URL is provided
     if (NOTIFICATION_WEBHOOK_URL) {
+      core.info(`Sending notification to ${NOTIFICATION_WEBHOOK_URL}`);
       const message = errorOccurred
         ? 'Workflow cleanup encountered errors.'
         : 'Workflow cleanup completed successfully.';
