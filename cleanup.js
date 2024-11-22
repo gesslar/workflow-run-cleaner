@@ -156,6 +156,8 @@ const axios = require('axios');
       } catch (notifyError) {
         core.error(`Failed to send notification: ${notifyError.message}`);
       }
+    } else {
+      core.info('No notification webhook URL provided. Skipping notification.');
     }
 
     if (errorOccurred) {
