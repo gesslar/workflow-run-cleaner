@@ -84,6 +84,8 @@ jobs:
         run: |
           echo "GIT_USER_NAME=${GIT_USER_NAME}" >> $GITHUB_ENV
           echo "GIT_USER_EMAIL=${GIT_USER_EMAIL}" >> $GITHUB_ENV
+          git config user.name "${GIT_USER_NAME}"
+          git config user.email "${GIT_USER_EMAIL}"
 
       - name: Print Git Variables
         run: |
