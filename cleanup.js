@@ -139,7 +139,7 @@ const axios = require('axios');
     }
 
     core.info(`Cleanup completed. `
-      `Processed ${repos} repositories, `
+      `Processed ${result.repos} repositories, `
       `${result.ignoredRepos} ignored repositories, `
       `${result.wfRuns} deleted workflow runs, and `
       `${result.errors} errors occurred.`);
