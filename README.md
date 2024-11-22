@@ -43,4 +43,13 @@ jobs:
           #
           # Defaults to 7 days if not set.
           days_threshold: ${{ vars.CLEANUP_DAYS_THRESHOLD }}
+          # Type of notification webhook.
+          # Defaults to 'discord' if not set.
+          # Supported values: 'discord'
+          notification_webhook_type: ${{ vars.NOTIFICATION_WEBHOOK_TYPE }}
+          # URL of the notification webhook.
+          notification_webhook_url: ${{ vars.NOTIFICATION_WEBHOOK_URL }}
+          # Debug mode.
+          # Defaults to false if not set.
+          debug: ${{ vars.DEBUG }}
 ```
