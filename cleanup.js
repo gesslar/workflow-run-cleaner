@@ -6,6 +6,13 @@ const axios = require('axios');
 
 // Main function
 (async () => {
+  const result = {
+    repos: 0,
+    ignoredRepos: 0,
+    wfRuns: 0,
+    errors: 0
+  };
+
   try {
     // Extracting inputs using core
     const TOKEN = core.getInput('token', { required: true });
@@ -55,8 +62,10 @@ const axios = require('axios');
 
         for (const repo of repos) {
           if (ignoreReposArray.includes(repo)) {
+            result.ignoredRepos += 1;
             core.info(`Skipping repository (ignored): ${repo}`);
           } else {
+            result.repos += 1;
             reposArray.push(repo);
           }
         }
@@ -112,8 +121,10 @@ const axios = require('axios');
                 run_id: runId
               });
               core.info(`Successfully deleted run ${runId}.`);
+              result.wfRuns += 1;
             } catch (deleteError) {
               core.error(`Failed to delete run ${runId}. Response: ${deleteError.message}`);
+              result.errors += 1;
               errorOccurred = true;
             }
           }
@@ -127,7 +138,11 @@ const axios = require('axios');
       }
     }
 
-    core.info('Cleanup completed.');
+    core.info(`Cleanup completed. `
+      `Processed ${repos} repositories, `
+      `${result.ignoredRepos} ignored repositories, `
+      `${result.wfRuns} deleted workflow runs, and `
+      `${result.errors} errors occurred.`);
 
     // Send notification if webhook URL is provided
     if (NOTIFICATION_WEBHOOK_URL) {
@@ -135,8 +150,14 @@ const axios = require('axios');
         ? 'Workflow cleanup encountered errors.'
         : 'Workflow cleanup completed successfully.';
 
+      result.text = message;
+
       try {
-        await axios.post(NOTIFICATION_WEBHOOK_URL, { text: message });
+        await axios.post(NOTIFICATION_WEBHOOK_URL, result, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         core.info('Notification sent.');
       } catch (notifyError) {
         core.error(`Failed to send notification: ${notifyError.message}`);
