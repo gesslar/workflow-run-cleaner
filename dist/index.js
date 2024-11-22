@@ -39100,11 +39100,8 @@ const axios = __nccwpck_require__(8757);
       }
     }
 
-    core.info("Cleanup completed. " +
-      `Processed ${result.repos} repositories, `
-      `${result.ignoredRepos} ignored repositories, `
-      `${result.wfRuns} deleted workflow runs, and `
-      `${result.errors} errors occurred.`);
+    // ugh
+    core.info(`Cleanup completed. Processed ${result.repos} repositories, ${result.ignoredRepos} ignored repositories, ${result.wfRuns} deleted workflow runs, and ${result.errors} errors occurred.`);
 
     // Send notification if webhook URL is provided
     if (NOTIFICATION_WEBHOOK_URL) {
