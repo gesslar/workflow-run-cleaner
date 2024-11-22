@@ -22,6 +22,10 @@ inputs:
   notification_webhook_url:
     description: 'Webhook URL for sending notifications'
     required: false
+  debug:
+    description: 'Enable debug mode'
+    required: false
+    default: 'false'
 runs:
   using: 'node20'
   main: 'dist/index.js'
