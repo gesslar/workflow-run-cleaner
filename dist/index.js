@@ -40056,15 +40056,12 @@ const axios = __nccwpck_require__(7269);
     const TARGET_CLEANUP_REPOS = core.getInput('target-cleanup-repos');
     const TARGET_IGNORE_REPOS = core.getInput('target-ignore-repos');
     const DAYS_THRESHOLD = core.getInput('days-threshold') || '7';
-    const NOTIFICATION_WEBHOOK_TYPE = core.getInput('notification-webhook-type') || 'discord';
-    const NOTIFICATION_WEBHOOK_URL = core.getInput('notification-webhook-url');
 
     // core.info(`TOKEN: ${TOKEN}`);
     DEBUG && core.debug(`REPO_OWNER: ${REPO_OWNER}`);
     DEBUG && core.debug(`TARGET_CLEANUP_REPOS: ${TARGET_CLEANUP_REPOS}`);
     DEBUG && core.debug(`TARGET_IGNORE_REPOS: ${TARGET_IGNORE_REPOS}`);
     DEBUG && core.debug(`DAYS_THRESHOLD: ${DAYS_THRESHOLD}`);
-    DEBUG && core.debug(`NOTIFICATION_WEBHOOK_URL: ${NOTIFICATION_WEBHOOK_URL}`);
 
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - parseInt(DAYS_THRESHOLD));
@@ -40185,32 +40182,6 @@ const axios = __nccwpck_require__(7269);
     // ugh
     const result_message = `Cleanup completed. Processed ${result.repos} repositories, ${result.ignoredRepos} ignored repositories, ${result.wfRuns} deleted workflow runs, and ${result.errors} errors occurred.`;
     core.info(result_message);
-
-    // Send notification if webhook URL is provided
-    if (NOTIFICATION_WEBHOOK_TYPE && NOTIFICATION_WEBHOOK_URL) {
-      DEBUG && core.debug(`Sending notification to ${NOTIFICATION_WEBHOOK_URL} via ${NOTIFICATION_WEBHOOK_TYPE}`);
-      const message = errorOccurred
-        ? 'Workflow cleanup encountered errors.'
-        : 'Workflow cleanup completed successfully.';
-
-      switch (NOTIFICATION_WEBHOOK_TYPE) {
-        case 'discord':
-          result.content = `**${message}**\n> ${result_message}`;
-          break;
-        default:
-          core.error(`Unsupported notification webhook type: ${NOTIFICATION_WEBHOOK_TYPE}`);
-          break;
-      }
-
-      try {
-        await axios.post(NOTIFICATION_WEBHOOK_URL, result) ;
-        DEBUG && core.debug('Notification sent.');
-      } catch (notifyError) {
-        core.error(`Failed to send notification: ${notifyError.message}`);
-      }
-    } else {
-      DEBUG && core.debug('No notification webhook URL provided. Skipping notification.');
-    }
 
     if (errorOccurred) {
       core.setFailed('Some errors occurred during the workflow cleanup.');
