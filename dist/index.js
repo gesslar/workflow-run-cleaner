@@ -40051,7 +40051,7 @@ const axios = __nccwpck_require__(7269);
   try {
     throw new Error('Generating error to see traceback');
   } catch(err) {
-    core.info(err.message);
+    core.info(err.stack);
   }
 
 
