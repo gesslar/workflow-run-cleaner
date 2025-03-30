@@ -1,6 +1,6 @@
 {
   "name": "workflow-run-cleaner",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Clean up old workflow runs",
   "main": "index.js",
   "scripts": {
@@ -17,8 +17,7 @@
   "type": "commonjs",
   "dependencies": {
     "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0",
-    "axios": "^1.8.4"
+    "@actions/github": "^6.0.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.38.3"
