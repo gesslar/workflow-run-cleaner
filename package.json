@@ -8,7 +8,7 @@
     "build": "ncc build cleanup.js -o dist"
   },
   "keywords": [],
-  "author": "",
+  "author": "gesslar",
   "license": "ISC",
   "dependencies": {
     "@actions/core": "^1.11.1",
