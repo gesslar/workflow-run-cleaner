@@ -14,6 +14,13 @@ const axios = require('axios');
   };
 
   try {
+    throw new Error('Generating error to see traceback');
+  } catch(err) {
+    core.info(err.message);
+  }
+
+
+  try {
     // Extracting inputs using core
     const DEBUG = core.getInput('debug') === 'true';
     const TOKEN = core.getInput('token', { required: true });
