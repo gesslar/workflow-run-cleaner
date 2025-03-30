@@ -40052,12 +40052,12 @@ const axios = __nccwpck_require__(7269);
     // Extracting inputs using core
     const DEBUG = core.getInput('debug') === 'true';
     const TOKEN = core.getInput('token', { required: true });
-    const REPO_OWNER = core.getInput('repo_owner', { required: true });
-    const TARGET_CLEANUP_REPOS = core.getInput('target_cleanup_repos');
-    const TARGET_IGNORE_REPOS = core.getInput('target_ignore_repos');
-    const DAYS_THRESHOLD = core.getInput('days_threshold') || '7';
-    const NOTIFICATION_WEBHOOK_TYPE = core.getInput('notification_webhook_type') || 'discord';
-    const NOTIFICATION_WEBHOOK_URL = core.getInput('notification_webhook_url');
+    const REPO_OWNER = core.getInput('repo-owner', { required: true });
+    const TARGET_CLEANUP_REPOS = core.getInput('target-cleanup-repos');
+    const TARGET_IGNORE_REPOS = core.getInput('target-ignore-repos');
+    const DAYS_THRESHOLD = core.getInput('days-threshold') || '7';
+    const NOTIFICATION_WEBHOOK_TYPE = core.getInput('notification-webhook-type') || 'discord';
+    const NOTIFICATION_WEBHOOK_URL = core.getInput('notification-webhook-url');
 
     // core.info(`TOKEN: ${TOKEN}`);
     DEBUG && core.debug(`REPO_OWNER: ${REPO_OWNER}`);
