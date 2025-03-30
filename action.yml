@@ -5,25 +5,25 @@ inputs:
   token:
     description: 'Personal Access Token with repo and workflow scopes'
     required: true
-  repo_owner:
+  repo-owner:
     description: 'Owner of the repositories'
     required: true
     default: ${{ github.repository_owner }}
-  target_cleanup_repos:
+  target-cleanup-repos:
     description: 'Comma-separated list of repositories to include'
     required: false
-  target_ignore_repos:
+  target-ignore-repos:
     description: 'Comma-separated list of repositories to exclude'
     required: false
-  days_threshold:
+  days-threshold:
     description: 'Number of days to keep workflow runs'
     required: false
     default: '7'
-  notification_webhook_type:
+  notification-webhook-type:
     description: 'Type of notification webhook'
     required: false
     default: 'discord'
-  notification_webhook_url:
+  notification-webhook-url:
     description: 'Webhook URL for sending notifications'
     required: false
   debug:

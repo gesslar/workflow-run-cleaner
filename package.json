@@ -1,15 +1,20 @@
 {
   "name": "workflow-run-cleaner",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "Clean up old workflow runs",
-  "main": "cleanup.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "ncc build cleanup.js -o dist"
   },
-  "keywords": [],
+  "keywords": [
+    "github",
+    "action",
+    "workflows",
+    "automation"
+  ],
   "author": "gesslar",
   "license": "ISC",
+  "type": "commonjs",
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@actions/github": "^6.0.0",
