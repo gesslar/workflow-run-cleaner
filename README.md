@@ -53,3 +53,7 @@ jobs:
           # Defaults to false if not set.
           debug: ${{ vars.DEBUG }}
 ```
+
+## License
+
+Unlicensed. Feel free to use this code in any way you like.
