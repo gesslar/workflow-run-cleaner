@@ -91,12 +91,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Delete old dist/index.js
+      - name: Safely delete old dist/index.js
         run: |
-
-          git rm -f dist/index.js
-          git commit -m "Remove old dist/index.js"
-          git push origin main
+          if [ -f dist/index.js ]; then
+            git rm -f dist/index.js || echo "Could not remove dist/index.js"
+            git commit -m "Remove old dist/index.js" || echo "Nothing to commit for removal"
+            git push origin main || echo "Nothing to push for removal"
+          else
+            echo "dist/index.js does not exist, skipping removal"
+          fi
 
       - name: Build action using NCC
         run: npm run build
