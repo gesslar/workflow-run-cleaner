@@ -1,10 +1,10 @@
 {
   "name": "workflow-run-cleaner",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "description": "Clean up old workflow runs",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build cleanup.js -o dist"
+    "build": "ncc build index.js -o dist"
   },
   "keywords": [
     "github",
