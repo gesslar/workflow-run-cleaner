@@ -66,4 +66,12 @@ jobs:
 
 ## License
 
-Unlicensed. Feel free to use this code in any way you like.
+`workflow-run-cleaner` is released under the [0BSD](LICENSE.txt).
+
+This package includes or depends on third-party components under their own
+licenses:
+
+| Dependency | License |
+| --- | --- |
+| [@actions/core](https://github.com/actions/toolkit) | MIT |
+| [@actions/github](https://github.com/actions/toolkit) | MIT |
