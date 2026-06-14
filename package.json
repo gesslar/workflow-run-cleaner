@@ -7,7 +7,6 @@
     "version": "npm run build && git add dist",
     "update": "npx npm-check-updates -u && npm install",
     "lint": "eslint src/",
-    "go": "gh pr create --fill && gh pr -mrd --auto",
     "patch": "npm version patch",
     "minor": "npm version minor",
     "major": "npm version major"
