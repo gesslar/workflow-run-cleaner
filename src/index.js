@@ -27,8 +27,8 @@ import * as github from "@actions/github"
     DEBUG && core.debug(`TARGET_IGNORE_REPOS: ${TARGET_IGNORE_REPOS}`)
     DEBUG && core.debug(`DAYS_THRESHOLD: ${DAYS_THRESHOLD}`)
 
-    const sevenDaysAgo = new Date()
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - parseInt(DAYS_THRESHOLD))
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - parseInt(DAYS_THRESHOLD))
     let errorOccurred = false
 
     // GitHub API client setup
@@ -98,42 +98,37 @@ import * as github from "@actions/github"
     for(const repo of reposArray) {
       core.info(`Processing repository: ${repo}`)
 
+      const [ownerName, repoName] = repo.split("/")
+
       const {actions} = octokit.rest
+
+      // First, page through every workflow run and collect the ones older
+      // than the threshold. We must gather the full list before deleting,
+      // because deleting during pagination shifts later runs onto earlier
+      // pages, and because a page of recent runs is not a signal that no
+      // older runs remain (runs are returned newest-first, so older runs
+      // live on later pages).
+      const runsToDelete = []
       let runPage = 1
+      let fetchFailed = false
       while(true) {
         try {
           const runsResponse = await actions.listWorkflowRunsForRepo({
-            owner: repo.split("/")[0],
-            repo: repo.split("/")[1],
+            owner: ownerName,
+            repo: repoName,
             per_page: 100,
             page: runPage
           })
 
-          const runs = runsResponse.data.workflow_runs.filter(run => {
-            return new Date(run.created_at) < sevenDaysAgo
-          })
+          const pageRuns = runsResponse.data.workflow_runs
 
-          if(runs.length === 0) {
-            core.info(`No more runs to process in repository: ${repo}.`)
+          if(pageRuns.length === 0) {
             break
           }
 
-          for(const run of runs) {
-            const runId = run.id
-            core.info(`Deleting workflow run ${runId} in repository ${repo}`)
-
-            try {
-              await actions.deleteWorkflowRun({
-                owner: repo.split("/")[0],
-                repo: repo.split("/")[1],
-                run_id: runId
-              })
-              core.info(`Successfully deleted run ${runId}.`)
-              result.wfRuns += 1
-            } catch(deleteError) {
-              core.error(`Failed to delete run ${runId}. Response: ${deleteError.message}`)
-              result.errors += 1
-              errorOccurred = true
+          for(const run of pageRuns) {
+            if(new Date(run.created_at) < cutoffDate) {
+              runsToDelete.push(run)
             }
           }
 
@@ -141,7 +136,34 @@ import * as github from "@actions/github"
         } catch(runsError) {
           core.error(`Failed to fetch runs for repository ${repo}. Response: ${runsError.message}`)
           errorOccurred = true
+          fetchFailed = true
           break
+        }
+      }
+
+      if(fetchFailed) {
+        continue
+      }
+
+      core.info(`Found ${runsToDelete.length} workflow run(s) to delete in repository ${repo}.`)
+
+      // Now delete the collected runs.
+      for(const run of runsToDelete) {
+        const runId = run.id
+        core.info(`Deleting workflow run ${runId} in repository ${repo}`)
+
+        try {
+          await actions.deleteWorkflowRun({
+            owner: ownerName,
+            repo: repoName,
+            run_id: runId
+          })
+          core.info(`Successfully deleted run ${runId}.`)
+          result.wfRuns += 1
+        } catch(deleteError) {
+          core.error(`Failed to delete run ${runId}. Response: ${deleteError.message}`)
+          result.errors += 1
+          errorOccurred = true
         }
       }
     }
