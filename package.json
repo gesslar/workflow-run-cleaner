@@ -1,6 +1,6 @@
 {
   "name": "workflow-run-cleaner",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "description": "Clean up old workflow runs",
   "scripts": {
     "build": "ncc build src/index.js -o dist",
