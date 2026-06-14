@@ -2,9 +2,15 @@
   "name": "workflow-run-cleaner",
   "version": "1.9.2",
   "description": "Clean up old workflow runs",
-  "main": "index.js",
   "scripts": {
-    "build": "ncc build index.js -o dist"
+    "build": "ncc build src/index.js -o dist",
+    "version": "npm run build && git add dist",
+    "update": "npx npm-check-updates -u && npm install",
+    "lint": "eslint src/",
+    "go": "gh pr create --fill && gh pr -mrd --auto",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major"
   },
   "keywords": [
     "github",
@@ -14,12 +20,17 @@
   ],
   "author": "gesslar",
   "license": "0BSD",
-  "type": "commonjs",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "dependencies": {
-    "@actions/core": "^1.11.1",
-    "@actions/github": "^6.0.0"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.3"
+    "@gesslar/uglier": "^2.4.1",
+    "@vercel/ncc": "^0.44.0",
+    "eslint": "^10.5.0"
   }
 }
