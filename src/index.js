@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-const core = require('@actions/core')
-const github = require('@actions/github')
+import * as core from "@actions/core"
+import * as github from "@actions/github"
 
 // Main function
-;(async () => {
+;(async() => {
   const result = {
     repos: 0,
     ignoredRepos: 0,
@@ -14,12 +14,12 @@ const github = require('@actions/github')
 
   try {
     // Extracting inputs using core
-    const DEBUG = core.getInput('debug') === 'true'
-    const TOKEN = core.getInput('token', { required: true })
-    const REPO_OWNER = core.getInput('repo-owner', { required: true })
-    const TARGET_CLEANUP_REPOS = core.getInput('target-cleanup-repos')
-    const TARGET_IGNORE_REPOS = core.getInput('target-ignore-repos')
-    const DAYS_THRESHOLD = core.getInput('days-threshold') || '7'
+    const DEBUG = core.getInput("debug") === "true"
+    const TOKEN = core.getInput("token", {required: true})
+    const REPO_OWNER = core.getInput("repo-owner", {required: true})
+    const TARGET_CLEANUP_REPOS = core.getInput("target-cleanup-repos")
+    const TARGET_IGNORE_REPOS = core.getInput("target-ignore-repos")
+    const DAYS_THRESHOLD = core.getInput("days-threshold") || "7"
 
     // core.info(`TOKEN: ${TOKEN}`)
     DEBUG && core.debug(`REPO_OWNER: ${REPO_OWNER}`)
@@ -29,7 +29,7 @@ const github = require('@actions/github')
 
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - parseInt(DAYS_THRESHOLD))
-    const errorOccurred = false
+    let errorOccurred = false
 
     // GitHub API client setup
     const octokit = github.getOctokit(TOKEN)
@@ -38,21 +38,21 @@ const github = require('@actions/github')
     let ignoreReposArray = []
 
     // Parse ignore repos
-    if (TARGET_IGNORE_REPOS) {
-      core.info('Using repositories to ignore from TARGET_IGNORE_REPOS input.')
-      ignoreReposArray = TARGET_IGNORE_REPOS.split(',').map(repo => repo.trim())
+    if(TARGET_IGNORE_REPOS) {
+      core.info("Using repositories to ignore from TARGET_IGNORE_REPOS input.")
+      ignoreReposArray = TARGET_IGNORE_REPOS.split(",").map(repo => repo.trim())
     }
 
     // Parse target cleanup repos
-    if (TARGET_CLEANUP_REPOS) {
-      core.info('Using specified repositories from TARGET_CLEANUP_REPOS input.')
-      reposArray = TARGET_CLEANUP_REPOS.split(',').map(repo => repo.trim())
+    if(TARGET_CLEANUP_REPOS) {
+      core.info("Using specified repositories from TARGET_CLEANUP_REPOS input.")
+      reposArray = TARGET_CLEANUP_REPOS.split(",").map(repo => repo.trim())
     } else {
-      core.info('No TARGET_CLEANUP_REPOS specified. Fetching all repositories except those in TARGET_IGNORE_REPOS.')
+      core.info("No TARGET_CLEANUP_REPOS specified. Fetching all repositories except those in TARGET_IGNORE_REPOS.")
 
       // Fetch all repositories owned by REPO_OWNER
       let page = 1
-      while (true) {
+      while(true) {
         const response = await octokit.rest.repos.listForUser({
           username: REPO_OWNER,
           per_page: 100,
@@ -60,13 +60,13 @@ const github = require('@actions/github')
         })
 
         const repos = response.data.map(repo => repo.full_name)
-        if (repos.length === 0) {
-          core.info('No more repositories found.')
+        if(repos.length === 0) {
+          core.info("No more repositories found.")
           break
         }
 
-        for (const repo of repos) {
-          if (ignoreReposArray.includes(repo)) {
+        for(const repo of repos) {
+          if(ignoreReposArray.includes(repo)) {
             result.ignoredRepos += 1
             core.info(`Skipping repository (ignored): ${repo}`)
           } else {
@@ -80,28 +80,31 @@ const github = require('@actions/github')
     }
 
     // Validate repository names
-    for (const repo of reposArray) {
-      if (!/^[^/]+\/[^/]+$/.test(repo)) {
+    for(const repo of reposArray) {
+      if(!/^[^/]+\/[^/]+$/.test(repo)) {
         core.setFailed(`Invalid repository format: ${repo}. Expected format 'owner/repo'.`)
+
         return
       }
     }
 
-    if (reposArray.length === 0) {
-      core.info('No repositories to process after applying filters.')
+    if(reposArray.length === 0) {
+      core.info("No repositories to process after applying filters.")
+
       return
     }
 
     // Loop through repositories
-    for (const repo of reposArray) {
+    for(const repo of reposArray) {
       core.info(`Processing repository: ${repo}`)
 
+      const {actions} = octokit.rest
       let runPage = 1
-      while (true) {
+      while(true) {
         try {
-          const runsResponse = await octokit.rest.actions.listWorkflowRunsForRepo({
-            owner: repo.split('/')[0],
-            repo: repo.split('/')[1],
+          const runsResponse = await actions.listWorkflowRunsForRepo({
+            owner: repo.split("/")[0],
+            repo: repo.split("/")[1],
             per_page: 100,
             page: runPage
           })
@@ -110,24 +113,24 @@ const github = require('@actions/github')
             return new Date(run.created_at) < sevenDaysAgo
           })
 
-          if (runs.length === 0) {
+          if(runs.length === 0) {
             core.info(`No more runs to process in repository: ${repo}.`)
             break
           }
 
-          for (const run of runs) {
+          for(const run of runs) {
             const runId = run.id
             core.info(`Deleting workflow run ${runId} in repository ${repo}`)
 
             try {
-              await octokit.rest.actions.deleteWorkflowRun({
-                owner: repo.split('/')[0],
-                repo: repo.split('/')[1],
+              await actions.deleteWorkflowRun({
+                owner: repo.split("/")[0],
+                repo: repo.split("/")[1],
                 run_id: runId
               })
               core.info(`Successfully deleted run ${runId}.`)
               result.wfRuns += 1
-            } catch (deleteError) {
+            } catch(deleteError) {
               core.error(`Failed to delete run ${runId}. Response: ${deleteError.message}`)
               result.errors += 1
               errorOccurred = true
@@ -135,7 +138,7 @@ const github = require('@actions/github')
           }
 
           runPage += 1
-        } catch (runsError) {
+        } catch(runsError) {
           core.error(`Failed to fetch runs for repository ${repo}. Response: ${runsError.message}`)
           errorOccurred = true
           break
@@ -147,11 +150,11 @@ const github = require('@actions/github')
     const result_message = `Cleanup completed. Processed ${result.repos} repositories, ${result.ignoredRepos} ignored repositories, ${result.wfRuns} deleted workflow runs, and ${result.errors} errors occurred.`
     core.info(result_message)
 
-    if (errorOccurred) {
-      core.setFailed('Some errors occurred during the workflow cleanup.')
+    if(errorOccurred) {
+      core.setFailed("Some errors occurred during the workflow cleanup.")
     }
 
-  } catch (err) {
+  } catch(err) {
     core.setFailed(`Action failed with error: ${err.message}`)
   }
 })()
