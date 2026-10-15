@@ -28,7 +28,7 @@
     "@actions/github": "^9.1.1"
   },
   "devDependencies": {
-    "@gesslar/uglier": "^2.4.1",
+    "@gesslar/uglier": "^2.4.2",
     "@vercel/ncc": "^0.45.0",
     "eslint": "^10.12.0"
   }
